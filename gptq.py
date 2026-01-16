@@ -200,7 +200,7 @@ class GPTQ:
             print(f"Warning: Layer columns {cols} not divisible by 4, skipping sparsity.")
 
         # # 量化
-        # if cols % (MX_BLOCK_SIZE) == 0:
+        if cols % (MX_BLOCK_SIZE) == 0:
 
         #     W_view_mx = W_sparse.view(rows, -1, MX_BLOCK_SIZE)
         #     print(W_view_mx[0,0])
@@ -220,11 +220,11 @@ class GPTQ:
         #     print(W_dequant[0,0])
 
         #     W_final = W_dequant.view(rows, cols)
-
-        #     mask_flat = mask.view(rows, cols)
-        #     W = W_final * mask_flat.float()
-        # else:
-        #     print(f"Warning: Layer columns {cols} not divisible by {MX_BLOCK_SIZE * 2}, skipping quantization.")
+            print("AAA")
+            mask_flat = mask.view(rows, cols)
+            W = W * mask_flat.float()
+        else:
+            print(f"Warning: Layer columns {cols} not divisible by {MX_BLOCK_SIZE * 2}, skipping quantization.")
         
         if isinstance(self.layer, transformers.Conv1D):
             W = W.t()
