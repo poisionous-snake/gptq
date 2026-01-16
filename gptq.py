@@ -183,6 +183,8 @@ class GPTQ:
 
         if cols % 4 == 0:
             W_view_sparse = W.view(rows, -1, 4)
+            # 打印W_view_sparse的前10行
+            print(W_view_sparse[:1])
 
             magnitude = W_view_sparse.abs()
 
@@ -190,6 +192,7 @@ class GPTQ:
 
             mask = torch.zeros_like(W_view_sparse, dtype=torch.bool)
             mask.scatter_(2, indices, True)
+            print(mask[:1])
 
             W_sparse = W_view_sparse * mask.float()
         else:
