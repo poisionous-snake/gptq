@@ -164,7 +164,7 @@ class GPTQ:
     def fasterquant(
         self, blocksize=128, percdamp=.01, groupsize=-1, actorder=False, static_groups=False
     ):
-        MX_BLOCK_SIZE = 32
+        MX_BLOCK_SIZE = 32 * 2
         MX_INT4_MAX = 7
 
         W = self.layer.weight.data.clone()
@@ -203,17 +203,22 @@ class GPTQ:
         # 量化
         if cols % (MX_BLOCK_SIZE) == 0:
 
-            W_view_mx = W.view(rows, -1, MX_BLOCK_SIZE)
+            W_view_mx = W_sparse.view(rows, -1, MX_BLOCK_SIZE)
+            print(W_view_mx[0,0])
 
             scale = W_view_mx.abs().amax(dim=2, keepdim=True) / MX_INT4_MAX
+            print(scale[0,0])
 
             #修正死神经元
             scale[scale == 0] = 1.0
 
             W_int= torch.round(W_view_mx / scale)
+            print(W_int[0,0])
             W_int = torch.clamp(W_int, -MX_INT4_MAX, MX_INT4_MAX)
+            print(W_int[0,0])
 
             W_dequant = W_int * scale
+            print(W_dequant[0,0])
 
             W_final = W_dequant.view(rows, cols)
 
