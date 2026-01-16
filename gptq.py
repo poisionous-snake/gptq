@@ -184,7 +184,7 @@ class GPTQ:
         if cols % 4 == 0:
             W_view_sparse = W.view(rows, -1, 4)
             # 打印W_view_sparse的前10行
-            print(W_view_sparse[:1])
+            print(W_view_sparse[0, 0])
 
             magnitude = W_view_sparse.abs()
 
@@ -192,14 +192,16 @@ class GPTQ:
 
             mask = torch.zeros_like(W_view_sparse, dtype=torch.bool)
             mask.scatter_(2, indices, True)
-            print(mask[:1])
+            print(mask[0, 0])
 
             W_sparse = W_view_sparse * mask.float()
+            print(W_sparse[0, 0])
+
         else:
             print(f"Warning: Layer columns {cols} not divisible by 4, skipping sparsity.")
 
         # 量化
-        if cols % (MX_BLOCK_SIZE * 2) == 0:
+        if cols % (MX_BLOCK_SIZE) == 0:
 
             W_view_mx = W.view(rows, -1, MX_BLOCK_SIZE)
 
