@@ -196,37 +196,35 @@ class GPTQ:
 
             W_sparse = W_view_sparse * mask.float()
             print(W_sparse[0, 0])
-
         else:
             print(f"Warning: Layer columns {cols} not divisible by 4, skipping sparsity.")
 
-        # 量化
-        if cols % (MX_BLOCK_SIZE) == 0:
+        # # 量化
+        # if cols % (MX_BLOCK_SIZE) == 0:
 
-            W_view_mx = W_sparse.view(rows, -1, MX_BLOCK_SIZE)
-            print(W_view_mx[0,0])
+        #     W_view_mx = W_sparse.view(rows, -1, MX_BLOCK_SIZE)
+        #     print(W_view_mx[0,0])
 
-            scale = W_view_mx.abs().amax(dim=2, keepdim=True) / MX_INT4_MAX
-            print(scale[0,0])
+        #     scale = W_view_mx.abs().amax(dim=2, keepdim=True) / MX_INT4_MAX
+        #     print(scale[0,0])
 
-            #修正死神经元
-            scale[scale == 0] = 1.0
+        #     #修正死神经元
+        #     scale[scale == 0] = 1.0
 
-            W_int= torch.round(W_view_mx / scale)
-            print(W_int[0,0])
-            W_int = torch.clamp(W_int, -MX_INT4_MAX, MX_INT4_MAX)
-            print(W_int[0,0])
+        #     W_int= torch.round(W_view_mx / scale)
+        #     print(W_int[0,0])
+        #     W_int = torch.clamp(W_int, -MX_INT4_MAX, MX_INT4_MAX)
+        #     print(W_int[0,0])
 
-            W_dequant = W_int * scale
-            print(W_dequant[0,0])
+        #     W_dequant = W_int * scale
+        #     print(W_dequant[0,0])
 
-            W_final = W_dequant.view(rows, cols)
+        #     W_final = W_dequant.view(rows, cols)
 
-            mask_flat = mask.view(rows, cols)
-            W = W_final * mask_flat.float()
-        else:
-
-            print(f"Warning: Layer columns {cols} not divisible by {MX_BLOCK_SIZE * 2}, skipping quantization.")
+        #     mask_flat = mask.view(rows, cols)
+        #     W = W_final * mask_flat.float()
+        # else:
+        #     print(f"Warning: Layer columns {cols} not divisible by {MX_BLOCK_SIZE * 2}, skipping quantization.")
         
         if isinstance(self.layer, transformers.Conv1D):
             W = W.t()
